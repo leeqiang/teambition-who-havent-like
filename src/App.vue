@@ -1,64 +1,158 @@
-<template>
-  <div id="app">
-    <img class="logo" src="./assets/logo.png">
-    <hello></hello>
-    <p>
-      Welcome to your Vue.js app!
-    </p>
-    <p>
-      To get a better understanding of how this boilerplate works, check out
-      <a href="http://vuejs-templates.github.io/webpack" target="_blank">its documentation</a>.
-      It is also recommended to go through the docs for
-      <a href="http://webpack.github.io/" target="_blank">Webpack</a> and
-      <a href="http://vuejs.github.io/vue-loader/" target="_blank">vue-loader</a>.
-      If you have any issues with the setup, please file an issue at this boilerplate's
-      <a href="https://github.com/vuejs-templates/webpack" target="_blank">repository</a>.
-    </p>
-    <p>
-      You may also want to checkout
-      <a href="https://github.com/vuejs/vue-router/" target="_blank">vue-router</a> for routing and
-      <a href="https://github.com/vuejs/vuex/" target="_blank">vuex</a> for state management.
-    </p>
-  </div>
+<template lang="pug">
+#app
+  template(v-if="params.task")
+    template(v-if="task")
+      h2.text-center 谁没点赞「{{ task.content }}」
+      h3 参与者列表
+      .avatars
+        avatar(v-for="id in involvedMembers", @click="addReciever(id)", :name="members[id].name", :url="members[id].avatarUrl", :has-liked="likedMembers[id] !== undefined")
+      h3 发私聊催促
+      p 发送对象
+      span.reciever(v-for="id in message.recievers", @click="removeReciever(id)") {{ members[id].name }}
+      p 发送内容
+      textarea(rows="5", v-model="message.content")
+      .button(@click="sendMessage()") 发送
+    h2.text-center(v-else) 加载任务信息中...
+  template(v-else)
+    h2.text-center 谁没点赞
+    p.text-center 未指定任务，请从任务菜单中打开插件
 </template>
 
 <script>
-import Hello from './components/Hello'
+import qs from 'querystring'
+import _ from 'lodash'
 
 export default {
+  data: function () {
+    return {
+      access_token: 'ACCESS_TOKEN',
+      params: qs.parse(window.location.search.substr(1)),
+      task: null,
+      members: {},
+      likedMembers: {},
+      message: {
+        recievers: [],
+        content: ''
+      }
+    }
+  },
+  computed: {
+    involvedMembers: function () {
+      return _.intersection(this.task.involveMembers, Object.keys(this.members))
+    }
+  },
+  ready: function () {
+    if (this.params.task) {
+      this.$http({
+        url: `https://api.teambition.com/api/tasks/${this.params.task}`,
+        method: 'GET',
+        params: {
+          access_token: this.access_token
+        }
+      }).then((res) => {
+        this.task = res.json()
+
+        this.$log('task')
+
+        this.message.content = `快来点赞任务「${this.task.content}」吧，就差你了：https://www.teambition.com/project/${this.task._projectId}/tasks/scrum/${this.task._tasklistId}/task/${this.task._id}`
+
+        this.$http({
+          url: `https://api.teambition.com/api/tasks/${this.params.task}/like`,
+          method: 'GET',
+          params: {
+            all: 1,
+            access_token: this.access_token
+          }
+        }).then((res) => {
+          let likes = res.json().likesGroup
+          this.likedMembers = _.zipObject(_.map(likes, '_id'), likes)
+
+          this.$http({
+            url: `https://api.teambition.com/api/v2/projects/${this.task._projectId}/members`,
+            method: 'GET',
+            params: {
+              access_token: this.access_token
+            }
+          }).then((res) => {
+            let members = res.json()
+            this.members = _.zipObject(_.map(members, '_id'), members)
+            this.message.recievers = _.difference(this.involvedMembers, Object.keys(this.likedMembers))
+          })
+        })
+      })
+    }
+  },
+  methods: {
+    addReciever: function (id) {
+      this.message.recievers = _.union(this.message.recievers, [id])
+    },
+    removeReciever: function (id) {
+      this.message.recievers = _.difference(this.message.recievers, [id])
+    },
+    sendMessage: function () {
+      window.alert('等待 Teambition API 更新中...')
+    }
+  },
   components: {
-    Hello
+    avatar: require('components/Avatar')
   }
 }
 </script>
 
-<style>
-html {
-  height: 100%;
-}
-
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+<style lang="scss">
+.text-center {
+  text-align: center;
 }
 
 #app {
   color: #2c3e50;
-  margin-top: -100px;
-  max-width: 600px;
-  font-family: Source Sans Pro, Helvetica, sans-serif;
-  text-align: center;
-}
+  user-select: none;
 
-#app a {
-  color: #42b983;
-  text-decoration: none;
-}
+  .avatars {
+    display: flex;
+    flex-direction: row;
 
-.logo {
-  width: 100px;
-  height: 100px
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+
+    .avatar { cursor: pointer; }
+  }
+
+  .reciever {
+    display: inline-block;
+
+    height: 20px;
+    margin: 1px;
+    padding: 3px 5px;
+
+    cursor: pointer;
+
+    border-radius: 10px;
+    background-color: #efefef;
+
+    font-size: 14px;
+    line-height: 20px;
+
+    &:hover::after {
+      content: ' ×';
+    }
+  }
+
+  textarea {
+    width: 100%;
+  }
+
+  .button {
+    float: right;
+    margin: 10px 0;
+    padding: 5px 20px;
+
+    color: white;
+    border: solid 0;
+    background-color: #4aaa4a;
+
+    cursor: pointer;
+  }
 }
 </style>
