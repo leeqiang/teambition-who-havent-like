@@ -52,8 +52,6 @@ export default {
       }).then((res) => {
         this.task = res.json()
 
-        this.$log('task')
-
         this.message.content = `快来点赞任务「${this.task.content}」吧，就差你了：https://www.teambition.com/project/${this.task._projectId}/tasks/scrum/${this.task._tasklistId}/task/${this.task._id}`
 
         this.$http({

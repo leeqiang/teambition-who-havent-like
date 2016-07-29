@@ -1,7 +1,7 @@
 {
   "name": "teambition-who-havent-liked",
   "version": "1.0.0",
-  "description": "Teambition 插件：谁未点赞",
+  "description": "Teambition 插件：谁没点赞",
   "author": "Aidi Stan <aidistan@live.com>",
   "private": true,
   "scripts": {
