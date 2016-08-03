@@ -25,36 +25,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$inner-radius: 30px;
+$outer-radius: 32px;
+
 .avatar {
   display: inline-block;
 
   .image {
     position: relative;
 
-    width: 60px;
-    height: 60px;
-    margin: 2px;
+    width: $inner-radius * 2;
+    height: $inner-radius * 2;
+    margin: $outer-radius - $inner-radius;
 
-    border-radius: 30px;
+    border-radius: $inner-radius;
     background-position: center;
     background-size: cover;
   }
 
   .image-mask {
     position: relative;
-    top: -2px;
-    left: -2px;
+    top: $inner-radius - $outer-radius;
+    left: $inner-radius - $outer-radius;
 
-    width: 64px;
-    height: 64px;
+    width: $outer-radius * 2;
+    height: $outer-radius * 2;
 
-    border-radius: 32px;
+    border-radius: $outer-radius;
     background-position: center;
     background-size: cover;
   }
 
   .name {
-    width: 64px;
+    width: $outer-radius * 2;
     height: 24px;
     margin-top: 5px;
 
