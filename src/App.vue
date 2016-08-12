@@ -1,16 +1,18 @@
 <template lang="pug">
-#app
+#app.container
   h2(style="text-align: center") {{ status }}
   template(v-if="task")
     h3 参与者列表
-    .avatars
+    p#avatars
       avatar(v-for="id in involvedMembers", @click="addReciever(id)", :name="projectMember[id].name", :url="projectMember[id].avatarUrl", :has-liked="hasLikedMembers.includes(id)")
     h3 发私聊催促
     p 发送对象
-    span.reciever(v-for="id in reminderMessage.recievers", @click="removeReciever(id)") {{ projectMember[id].name }}
+    p#recievers
+      span.label.label-primary.text-lg(v-for="id in reminderMessage.recievers", @click="removeReciever(id)") {{ projectMember[id].name }}
     p 发送内容
-    textarea(rows="5", v-model="reminderMessage.content")
-    .button(@click="sendMessage()") 发送
+    .form-group
+      textarea.form-control(rows="5", v-model="reminderMessage.content")
+    .btn.btn-success.pull-right(@click="sendMessage()") 发送
 </template>
 
 <script>
@@ -115,59 +117,31 @@ export default {
 </script>
 
 <style lang="scss">
-.text-center {
-  text-align: center;
+#app {
+  user-select: none;
 }
 
-#app {
-  font-size: 14px;
-  user-select: none;
+#avatars {
+  display: flex;
+  flex-direction: row;
 
-  .avatars {
-    display: flex;
-    flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
 
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-end;
+  .avatar { cursor: pointer; }
+}
 
-    .avatar { cursor: pointer; }
-  }
+#recievers span {
+  display: inline-block;
+  margin: 1px;
+  padding: 3px 5px;
 
-  .reciever {
-    display: inline-block;
+  font-size: 12px;
+  cursor: pointer;
 
-    height: 20px;
-    margin: 1px;
-    padding: 3px 5px;
-
-    cursor: pointer;
-
-    border-radius: 10px;
-    background-color: #efefef;
-
-    font-size: 14px;
-    line-height: 20px;
-
-    &:hover::after {
-      content: ' ×';
-    }
-  }
-
-  textarea {
-    width: 100%;
-  }
-
-  .button {
-    float: right;
-    margin: 10px 0;
-    padding: 5px 20px;
-
-    color: white;
-    border: solid 0;
-    background-color: #4aaa4a;
-
-    cursor: pointer;
+  &:hover::before {
+    content: 'x ';
   }
 }
 </style>
