@@ -84,7 +84,20 @@ export default {
       this.reminderMessage.recievers = _.difference(this.reminderMessage.recievers, [id])
     },
     sendMessage: function () {
-      window.alert('抱歉，私聊提醒仍在开发中...')
+      for (let id of this.reminderMessage.recievers) {
+        this.$http({
+          url: `https://api.teambition.com/api/direct_messages/users/${id}`,
+          method: 'POST',
+          params: {
+            access_token: this.access_token
+          },
+          body: {
+            content: this.reminderMessage.content
+          }
+        })
+      }
+
+      window.alert('发送成功！')
     }
   },
   components: {
