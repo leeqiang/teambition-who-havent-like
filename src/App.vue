@@ -16,6 +16,7 @@
 <script>
 import qs from 'querystring'
 import _ from 'lodash'
+import * as sdk from 'tb-apps-sdk'
 
 export default {
   data: function () {
@@ -97,7 +98,14 @@ export default {
         })
       }
 
-      window.alert('发送成功！')
+      sdk.notify({
+        isCI: false,
+        origin: `${window.location.protocol}//${window.location.host}`,
+        params: {
+          status: 'success',
+          message: '发送成功'
+        }
+      })
     }
   },
   components: {
