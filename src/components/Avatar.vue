@@ -25,8 +25,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$inner-radius: 30px;
-$outer-radius: 32px;
+$inner-radius: 26px;
+$outer-radius: 28px;
 
 .avatar {
   display: inline-block;

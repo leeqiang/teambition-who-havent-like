@@ -1,18 +1,20 @@
 <template lang="pug">
 #app.container
-  h2(style="text-align: center") {{ status }}
-  template(v-if="task")
-    h3 参与者列表
+  .row(v-if="status !== ''")
+    h4(style="text-align: center") {{ status }}
+  .row(v-if="task")
+    h4 参与者列表
     p#avatars
       avatar(v-for="id in involvedMembers", @click="addReciever(id)", :name="projectMember[id].name", :url="projectMember[id].avatarUrl", :has-liked="hasLikedMembers.includes(id)")
-    h3 发私聊催促
-    p 发送对象
+    h4 发私聊催促
+    h5 发送对象
     p#recievers
-      span.label.label-primary.text-lg(v-for="id in reminderMessage.recievers", @click="removeReciever(id)") {{ projectMember[id].name }}
-    p 发送内容
+      span.label.label-primary(v-for="id in reminderMessage.recievers", @click="removeReciever(id)") {{ projectMember[id].name }}
+    h5 发送内容
     .form-group
       textarea.form-control(rows="5", v-model="reminderMessage.content")
-    .btn.btn-success.pull-right(@click="sendMessage()") 发送
+    .form-group.clearfix
+      .btn.btn-primary.pull-right(@click="sendMessage()") 发送
 </template>
 
 <script>
@@ -132,16 +134,16 @@ export default {
   .avatar { cursor: pointer; }
 }
 
-#recievers span {
+#recievers span.label {
   display: inline-block;
-  margin: 1px;
-  padding: 3px 5px;
+  margin: 3px 2px;
+  padding: 4px 6px;
 
-  font-size: 12px;
+  font-size: 100%;
   cursor: pointer;
 
-  &:hover::before {
-    content: 'x ';
+  &:hover::after {
+    content: ' x';
   }
 }
 </style>
