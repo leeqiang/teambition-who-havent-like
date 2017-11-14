@@ -19,8 +19,6 @@
 
 <script>
 import qs from 'querystring'
-import _ from 'lodash'
-import * as sdk from 'tb-apps-sdk'
 
 export default {
   data: function () {
@@ -43,37 +41,28 @@ export default {
       return
     }
 
-    this.$http({
-      url: `https://api.teambition.com/api/tasks/${this.params.task}`,
-      method: 'GET',
-      params: {
-        access_token: this.access_token
-      }
+    this.$api({
+      url: `/tasks/${this.params.task}`,
+      method: 'GET'
     }).then((res) => {
       this.task = res.json()
 
-      this.$http({
-        url: `https://api.teambition.com/api/v2/projects/${this.task._projectId}/members`,
-        method: 'GET',
-        params: {
-          access_token: this.access_token
-        }
+      this.$api({
+        url: `/v2/projects/${this.task._projectId}/members`,
+        method: 'GET'
       }).then((res) => {
         let members = res.json()
-        this.projectMember = _.zipObject(_.map(members, '_id'), members)
-        this.involvedMembers = _.intersection(this.task.involveMembers, Object.keys(this.projectMember))
+        this.projectMember = this.$_.keyBy(members, '_id')
+        this.involvedMembers = this.$_.intersection(this.task.involveMembers, Object.keys(this.projectMember))
 
-        this.$http({
-          url: `https://api.teambition.com/api/tasks/${this.params.task}/like`,
+        this.$api({
+          url: `/tasks/${this.params.task}/like`,
           method: 'GET',
-          params: {
-            all: 1,
-            access_token: this.access_token
-          }
+          params: { all: 1 }
         }).then((res) => {
           let likes = res.json().likesGroup
-          this.hasLikedMembers = _.intersection(_.map(likes, '_id'), Object.keys(this.projectMember))
-          this.reminderMessage.recievers = _.difference(this.involvedMembers, this.hasLikedMembers)
+          this.hasLikedMembers = this.$_.intersection(this.$_.map(likes, '_id'), Object.keys(this.projectMember))
+          this.reminderMessage.recievers = this.$_.difference(this.involvedMembers, this.hasLikedMembers)
           this.reminderMessage.content = `快来点赞任务「${this.task.content}」吧，就差你啦：https://www.teambition.com/project/${this.task._projectId}/tasks/scrum/${this.task._tasklistId}/task/${this.task._id}`
 
           this.status = ''
@@ -83,26 +72,23 @@ export default {
   },
   methods: {
     addReciever: function (id) {
-      this.reminderMessage.recievers = _.union(this.reminderMessage.recievers, [id])
+      this.reminderMessage.recievers = this.$_.union(this.reminderMessage.recievers, [id])
     },
     removeReciever: function (id) {
-      this.reminderMessage.recievers = _.difference(this.reminderMessage.recievers, [id])
+      this.reminderMessage.recievers = this.$_.difference(this.reminderMessage.recievers, [id])
     },
     sendMessage: function () {
       for (let id of this.reminderMessage.recievers) {
-        this.$http({
-          url: `https://api.teambition.com/api/direct_messages/users/${id}`,
+        this.$api({
+          url: `/direct_messages/users/${id}`,
           method: 'POST',
-          params: {
-            access_token: this.access_token
-          },
           body: {
             content: this.reminderMessage.content
           }
         })
       }
 
-      sdk.notify({
+      this.$tb.notify({
         isCI: false,
         origin: `${window.location.protocol}//${window.location.host}`,
         params: {
