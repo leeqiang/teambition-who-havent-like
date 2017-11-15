@@ -52,7 +52,7 @@ export default {
         method: 'GET'
       }).then((res) => {
         let members = res.json()
-        this.projectMember = this.$_.keyBy(members, '_id')
+        this.projectMember = this.$_.keyBy(members, '_userId')
         this.involvedMembers = this.$_.intersection(this.task.involveMembers, Object.keys(this.projectMember))
 
         this.$api({
