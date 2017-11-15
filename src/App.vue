@@ -105,6 +105,10 @@ export default {
 </script>
 
 <style lang="scss">
+body {
+  padding: 10px;
+}
+
 #app {
   user-select: none;
 }
